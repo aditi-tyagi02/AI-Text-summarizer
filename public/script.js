@@ -52,15 +52,23 @@ function submitData(e) {
 
     // Note - here we can omit the “baseUrl” we needed in Postman and just use a relative path to “/summarize” because we will be calling the API from our Replit!  
     fetch('/api/summarize', requestOptions)
-      .then(response => response.json())
-      .then(data => {
-        summarizedTextArea.value = data.summary;
-        submitButton.classList.remove("submit-button--loading");
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        summarizedTextArea.value = 'An error occurred while summarizing the text.';
-        submitButton.classList.remove("submit-button--loading");
-      });
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    if (data.error) {
+      throw new Error(data.error);
+    }
+    summarizedTextArea.value = data.summary;
+    submitButton.classList.remove("submit-button--loading");
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    summarizedTextArea.value = `An error occurred while summarizing the text: ${error.message}`;
+    submitButton.classList.remove("submit-button--loading");
+  });
   }
 

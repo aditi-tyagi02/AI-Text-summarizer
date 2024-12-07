@@ -21,10 +21,16 @@ async function summarizeText(text) {
   };
 
   try {
+    console.log('Sending request to Hugging Face API');
     const response = await axios(config);
-    return response.data[0].summary_text;
+    console.log('Received response from Hugging Face API');
+    if (response.data && response.data[0] && response.data[0].summary_text) {
+      return response.data[0].summary_text;
+    } else {
+      throw new Error('Unexpected response format from Hugging Face API');
+    }
   } catch (error) {
-    console.error('Error in summarizeText:', error);
+    console.error('Error in summarizeText:', error.response ? error.response.data : error.message);
     throw error;
   }
 }
