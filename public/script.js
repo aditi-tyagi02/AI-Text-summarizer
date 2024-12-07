@@ -34,12 +34,9 @@ function submitData(e) {
   submitButton.classList.add("submit-button--loading");
 
   const text_to_summarize = textArea.value;
-  require('dotenv').config();
 
-  // INSERT CODE SNIPPET FROM POSTMAN BELOW
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
-  myHeaders.append("Authorization", `Bearer ${process.env.ACCESS_TOKEN}`); 
 
   const raw = JSON.stringify({
     "text_to_summarize": text_to_summarize
@@ -54,20 +51,16 @@ function submitData(e) {
   // Send the text to the server using fetch API
 
     // Note - here we can omit the “baseUrl” we needed in Postman and just use a relative path to “/summarize” because we will be calling the API from our Replit!  
-    fetch('/summarize', requestOptions)
-      .then(response => response.text()) // Response will be summarized text
-      .then(summary => {
-        // Do something with the summary response from the back end API!
-
-        // Update the output text area with new summary
-        summarizedTextArea.value = summary;
-
-        // Stop the spinning loading animation
+    fetch('/api/summarize', requestOptions)
+      .then(response => response.json())
+      .then(data => {
+        summarizedTextArea.value = data.summary;
         submitButton.classList.remove("submit-button--loading");
-
       })
       .catch(error => {
-        console.log(error.message);
+        console.error('Error:', error);
+        summarizedTextArea.value = 'An error occurred while summarizing the text.';
+        submitButton.classList.remove("submit-button--loading");
       });
   }
 

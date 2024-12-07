@@ -1,30 +1,25 @@
 const express = require('express');
 const app = express();
-const port = 3000;
+require('dotenv').config();
 const summarizeText = require('./summarize.js');
 
-// Parses JSON bodies (as sent by API clients)
+const port = process.env.PORT || 3000;
+
 app.use(express.json());
-
-// Serves static files from the 'public' directory
 app.use(express.static('public'));
-// Handle POST requests to the '/summarize' endpoint
 
-app.post('/summarize', (req, res) => {
- // get the text_to_summarize property from the request body
-  const text = req.body.text_to_summarize;
-
- // call your summarizeText function, passing in the text from the request
-  summarizeText(text) 
-    .then(response => {
-       res.send(response); // Send the summary text as a response to the client
-    })
-    .catch(error => {
-      console.log(error.message);
-    });
+app.post('/api/summarize', async (req, res) => {
+  try {
+    const text = req.body.text_to_summarize;
+    const summary = await summarizeText(text);
+    res.json({ summary });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while summarizing the text.' });
+  }
 });
 
-// Start the server
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}/`);
+  console.log(`Server running on port ${port}`);
 });
+
